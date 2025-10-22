@@ -30,7 +30,7 @@ function createMockRepository() {
 }
 
 let repositoryMock: MockRepository;
-const getRepositoryMock = AppDataSource.getRepository as jest.MockedFunction<
+const typedGetRepositoryMock = AppDataSource.getRepository as jest.MockedFunction<
   typeof AppDataSource.getRepository
 >;
 const hashPasswordMock = hashPassword as jest.MockedFunction<typeof hashPassword>;
@@ -39,7 +39,7 @@ describe('UsuarioService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     repositoryMock = createMockRepository();
-    getRepositoryMock.mockReturnValue(repositoryMock);
+    typedGetRepositoryMock.mockReturnValue(repositoryMock);
     hashPasswordMock.mockReset();
     hashPasswordMock.mockResolvedValue('hashed-secret');
     (UsuarioService as any).instance = undefined;
