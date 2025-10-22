@@ -1,13 +1,17 @@
 import { z } from "zod";
 
+const restauranteCommonFields = {
+    nombreComercial: z.string().min(1).max(150),
+    direccion: z.string().min(1).max(255).optional(),
+    telefono: z.string().min(5).max(20).optional(),
+    ciudad: z.string().min(2).max(100).optional(),
+    fotoPerfil: z.string().url().max(255).optional(),
+};
+
 const createWithUserIdSchema = z
     .object({
         idUsuario: z.number().int().positive(),
-        nombreComercial: z.string().min(1).max(150),
-        direccion: z.string().min(1).max(255).optional(),
-        telefono: z.string().min(5).max(20).optional(),
-        ciudad: z.string().min(2).max(100).optional(),
-        fotoPerfil: z.string().url().max(255).optional(),
+        ...restauranteCommonFields,
     })
     .strict();
 
@@ -20,11 +24,7 @@ const createWithNewUserSchema = z
                 password: z.string().min(6).max(100),
             })
             .strict(),
-        nombreComercial: z.string().min(1).max(150),
-        direccion: z.string().min(1).max(255).optional(),
-        telefono: z.string().min(5).max(20).optional(),
-        ciudad: z.string().min(2).max(100).optional(),
-        fotoPerfil: z.string().url().max(255).optional(),
+        ...restauranteCommonFields,
     })
     .strict();
 
@@ -33,7 +33,15 @@ export const createRestauranteSchema = z.union([
     createWithNewUserSchema,
 ]);
 
-export const updateRestauranteSchema = createRestauranteSchema.partial().refine(
+const updateRestauranteBaseSchema = z
+    .object({
+        idUsuario: z.number().int().positive(),
+        ...restauranteCommonFields,
+        fotoPerfil: z.string().url().max(255).nullable(),
+    })
+    .strict();
+
+export const updateRestauranteSchema = updateRestauranteBaseSchema.partial().refine(
     data => Object.keys(data).length > 0,
     { message: "Debe enviar al menos un campo" },
 );
