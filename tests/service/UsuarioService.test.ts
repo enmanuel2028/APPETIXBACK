@@ -2,12 +2,10 @@ import { UsuarioService } from '../../src/service/UsuarioService';
 import { ServiceError } from '../../src/service/errors';
 import { hashPassword } from '../../src/utils/password';
 
-const getRepositoryMock = jest.fn();
-
 jest.mock('../../src/config/data', () => ({
   __esModule: true,
   AppDataSource: {
-    getRepository: getRepositoryMock,
+    getRepository: jest.fn(),
   },
 }));
 
@@ -32,7 +30,7 @@ function createMockRepository() {
 }
 
 let repositoryMock: MockRepository;
-const typedGetRepositoryMock = getRepositoryMock as jest.MockedFunction<
+const typedGetRepositoryMock = AppDataSource.getRepository as jest.MockedFunction<
   typeof AppDataSource.getRepository
 >;
 const hashPasswordMock = hashPassword as jest.MockedFunction<typeof hashPassword>;
