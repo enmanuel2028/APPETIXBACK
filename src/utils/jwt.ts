@@ -3,8 +3,16 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || "super-secreto";
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "super-secreto-refresh";
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+if (!ACCESS_SECRET) {
+    throw new Error("JWT_ACCESS_SECRET environment variable is required");
+}
+
+if (!REFRESH_SECRET) {
+    throw new Error("JWT_REFRESH_SECRET environment variable is required");
+}
 
 export const signAccess = (payload: any) =>
     jwt.sign(payload, ACCESS_SECRET, { expiresIn: "15m" });
