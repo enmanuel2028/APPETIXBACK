@@ -79,6 +79,8 @@ JWT_ACCESS_SECRET=tu_secreto_super_seguro
 JWT_REFRESH_SECRET=tu_secreto_refresh_aun_mas_largo
 ```
 
+> ⚠️ `JWT_ACCESS_SECRET` y `JWT_REFRESH_SECRET` son **obligatorios**. El servidor se detendrá durante el arranque si faltan, por lo que debes definirlos explícitamente en todos los entornos (desarrollo, pruebas y producción).
+
 Puedes ajustar los valores según tu infraestructura. Para entornos productivos, recuerda utilizar secretos robustos y restringir el acceso a la base de datos.
 
 ## 📦 Scripts disponibles
