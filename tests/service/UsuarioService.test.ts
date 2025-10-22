@@ -2,6 +2,20 @@ import { UsuarioService } from '../../src/service/UsuarioService';
 import { ServiceError } from '../../src/service/errors';
 import { hashPassword } from '../../src/utils/password';
 
+jest.mock('../../src/config/data', () => ({
+  __esModule: true,
+  AppDataSource: {
+    getRepository: jest.fn(),
+  },
+}));
+
+jest.mock('../../src/utils/password', () => ({
+  __esModule: true,
+  hashPassword: jest.fn(),
+}));
+
+import { AppDataSource } from '../../src/config/data';
+
 type MockRepository = ReturnType<typeof createMockRepository>;
 
 function createMockRepository() {
@@ -15,33 +29,19 @@ function createMockRepository() {
   };
 }
 
-const repositoryMock: MockRepository = createMockRepository();
-const getRepositoryMock = jest.fn(() => repositoryMock);
-
-jest.mock('../../src/config/data', () => ({
-  AppDataSource: {
-    getRepository: getRepositoryMock,
-  },
-}));
-
-jest.mock('../../src/utils/password', () => ({
-  hashPassword: jest.fn(),
-}));
-
+let repositoryMock: MockRepository;
+const typedGetRepositoryMock = AppDataSource.getRepository as jest.MockedFunction<
+  typeof AppDataSource.getRepository
+>;
 const hashPasswordMock = hashPassword as jest.MockedFunction<typeof hashPassword>;
 
 describe('UsuarioService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    repositoryMock.find.mockReset();
-    repositoryMock.findOne.mockReset();
-    repositoryMock.findOneBy.mockReset();
-    repositoryMock.create.mockReset();
-    repositoryMock.save.mockReset();
-    repositoryMock.remove.mockReset();
+    repositoryMock = createMockRepository();
+    typedGetRepositoryMock.mockReturnValue(repositoryMock);
     hashPasswordMock.mockReset();
     hashPasswordMock.mockResolvedValue('hashed-secret');
-    getRepositoryMock.mockReturnValue(repositoryMock);
     (UsuarioService as any).instance = undefined;
   });
 
