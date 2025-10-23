@@ -7,6 +7,7 @@ import { Promocion } from "../model/Promocion";
 import { Calificacion } from "../model/Calificacion";
 import { Sesion } from "../model/Sesion";
 import { Log } from "../model/Log";
+import { PasswordReset } from "../model/PasswordReset";
 import * as dotenv from "dotenv";
 
 dotenv.config();
@@ -20,5 +21,5 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME || "APP_RESTAURANTES",
     synchronize: false, // ⚠️ NO usar en producción (puede modificar tablas)
     logging: process.env.NODE_ENV !== "production",
-    entities: [Usuario, Restaurante, Categoria, Promocion, Calificacion, Sesion, Log],
+    entities: [Usuario, Restaurante, Categoria, Promocion, Calificacion, Sesion, Log, PasswordReset],
 });

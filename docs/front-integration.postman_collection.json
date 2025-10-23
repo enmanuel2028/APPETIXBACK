@@ -1,0 +1,1546 @@
+{
+  "info": {
+    "_postman_id": "f04f2e7c-2a51-4244-9f2f-5b7f1d2e5d5d",
+    "name": "APPETIX - API completa",
+    "description": "Coleccion Postman con todos los endpoints disponibles en el backend APPETIX.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serverUrl}}/health",
+          "host": [
+            "{{serverUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        },
+        "description": "Endpoint de verificacion rapida para comprobar que el servidor esta vivo."
+      },
+      "response": []
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Registrar usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/auth/register",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Crea un nuevo usuario cliente y devuelve tokens de acceso y refresh.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan Perez\",\n  \"email\": \"juan@example.com\",\n  \"password\": \"secreto123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/auth/login",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Autentica al usuario y devuelve tokens de acceso y refresh.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"juan@example.com\",\n  \"password\": \"secreto123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/auth/forgot-password",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "Solicita el restablecimiento de contrasena.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"juan@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/auth/reset-password",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            },
+            "description": "Consume el token de recuperacion y actualiza la contrasena.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"password\": \"nuevoPass123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/auth/refresh",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Genera un nuevo par de tokens a partir de un refresh valido.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/auth/logout",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Revoca el refresh token indicado y cierra la sesion.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Listar usuarios",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/usuarios",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": "Lista todos los usuarios (requiere admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener usuario por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/usuarios/{{usuarioId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioId}}"
+              ]
+            },
+            "description": "Detalle de un usuario especifico."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear usuario (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/usuarios",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": "Permite crear un usuario manualmente (admin).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Nuevo Admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\",\n  \"rol\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/usuarios/{{usuarioId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioId}}"
+              ]
+            },
+            "description": "Actualiza datos de un usuario.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan Actualizado\",\n  \"password\": \"nuevo123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deshabilitar usuario (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/usuarios/{{usuarioId}}/disable",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioId}}",
+                "disable"
+              ]
+            },
+            "description": "Deshabilita un usuario."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Restaurantes",
+      "item": [
+        {
+          "name": "Listar restaurantes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/restaurantes",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "restaurantes"
+              ]
+            },
+            "description": "Devuelve la lista completa de restaurantes."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener restaurante por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/restaurantes/{{restauranteId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "restaurantes",
+                "{{restauranteId}}"
+              ]
+            },
+            "description": "Detalle de un restaurante."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear restaurante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/restaurantes",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "restaurantes"
+              ]
+            },
+            "description": "Crea un restaurante asociado al usuario.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Mi Restaurante\",\n  \"direccion\": \"Av Siempre Viva 123\",\n  \"telefono\": \"555123456\",\n  \"descripcion\": \"Sabores unicos\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar restaurante",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/restaurantes/{{restauranteId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "restaurantes",
+                "{{restauranteId}}"
+              ]
+            },
+            "description": "Actualiza un restaurante existente.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Restaurante Actualizado\",\n  \"descripcion\": \"Nueva descripcion\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subir foto de restaurante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/restaurantes/{{restauranteId}}/foto",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "restaurantes",
+                "{{restauranteId}}",
+                "foto"
+              ]
+            },
+            "description": "Sube o reemplaza la foto del restaurante.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "foto",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar restaurante",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/restaurantes/{{restauranteId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "restaurantes",
+                "{{restauranteId}}"
+              ]
+            },
+            "description": "Elimina un restaurante (owner o admin)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categorias",
+      "item": [
+        {
+          "name": "Listar categorias",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/categorias",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            },
+            "description": "Lista todas las categorias."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear categoria",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/categorias",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            },
+            "description": "Crea una categoria.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Comida Peruana\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar categoria",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/categorias/{{categoriaId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "categorias",
+                "{{categoriaId}}"
+              ]
+            },
+            "description": "Actualiza una categoria.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Comida Vegana\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar categoria",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/categorias/{{categoriaId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "categorias",
+                "{{categoriaId}}"
+              ]
+            },
+            "description": "Elimina una categoria."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Promociones",
+      "item": [
+        {
+          "name": "Crear promocion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/promociones",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "promociones"
+              ]
+            },
+            "description": "Crea una promocion para un restaurante.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Combo almuerzo\",\n  \"descripcion\": \"Menu completo al 20%\",\n  \"precio\": 9.99,\n  \"idRestaurante\": \"{{restauranteId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar promociones activas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/promociones",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "promociones"
+              ]
+            },
+            "description": "Promociones activas."
+          },
+          "response": []
+        },
+        {
+          "name": "Promociones por restaurante",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/promociones/restaurante/{{restauranteId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "promociones",
+                "restaurante",
+                "{{restauranteId}}"
+              ]
+            },
+            "description": "Promociones de un restaurante."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar promocion",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/promociones/{{promocionId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "promociones",
+                "{{promocionId}}"
+              ]
+            },
+            "description": "Actualiza una promocion.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Combo cena\",\n  \"descripcion\": \"Promo nocturna\",\n  \"precio\": 11.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar promocion",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/promociones/{{promocionId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "promociones",
+                "{{promocionId}}"
+              ]
+            },
+            "description": "Elimina una promocion."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Calificaciones",
+      "item": [
+        {
+          "name": "Listar calificaciones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/calificaciones",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "calificaciones"
+              ]
+            },
+            "description": "Todas las calificaciones."
+          },
+          "response": []
+        },
+        {
+          "name": "Calificaciones por restaurante",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/calificaciones/restaurante/{{restauranteId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "calificaciones",
+                "restaurante",
+                "{{restauranteId}}"
+              ]
+            },
+            "description": "Calificaciones de un restaurante."
+          },
+          "response": []
+        },
+        {
+          "name": "Calificaciones por usuario",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/calificaciones/usuario/{{usuarioId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "calificaciones",
+                "usuario",
+                "{{usuarioId}}"
+              ]
+            },
+            "description": "Calificaciones realizadas por un usuario."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear calificacion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/calificaciones",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "calificaciones"
+              ]
+            },
+            "description": "Crea una calificacion.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idRestaurante\": \"{{restauranteId}}\",\n  \"puntuacion\": 5,\n  \"comentario\": \"Excelente servicio\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar calificacion",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/calificaciones/{{calificacionId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "calificaciones",
+                "{{calificacionId}}"
+              ]
+            },
+            "description": "Actualiza una calificacion.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"puntuacion\": 4,\n  \"comentario\": \"Buena comida pero algo lenta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar calificacion",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/calificaciones/{{calificacionId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "calificaciones",
+                "{{calificacionId}}"
+              ]
+            },
+            "description": "Elimina una calificacion."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Sesiones",
+      "item": [
+        {
+          "name": "Listar sesiones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/sesiones",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "sesiones"
+              ]
+            },
+            "description": "Sesiones registradas."
+          },
+          "response": []
+        },
+        {
+          "name": "Sesiones por usuario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/sesiones/usuario/{{usuarioId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "sesiones",
+                "usuario",
+                "{{usuarioId}}"
+              ]
+            },
+            "description": "Sesiones de un usuario."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener sesion por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/sesiones/{{sesionId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "sesiones",
+                "{{sesionId}}"
+              ]
+            },
+            "description": "Detalle de una sesion."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear sesion manual",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/sesiones",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "sesiones"
+              ]
+            },
+            "description": "Inserta una sesion manualmente.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idUsuario\": \"{{usuarioId}}\",\n  \"token\": \"refresh-manual\",\n  \"fechaExpira\": \"2025-01-01T00:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar sesiones por usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/sesiones/usuario/{{usuarioId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "sesiones",
+                "usuario",
+                "{{usuarioId}}"
+              ]
+            },
+            "description": "Revoca sesiones de un usuario."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar sesion por id",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/sesiones/{{sesionId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "sesiones",
+                "{{sesionId}}"
+              ]
+            },
+            "description": "Revoca una sesion especifica."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Logs",
+      "item": [
+        {
+          "name": "Listar logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/logs",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "logs"
+              ]
+            },
+            "description": "Recupera todos los logs."
+          },
+          "response": []
+        },
+        {
+          "name": "Logs por usuario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/logs/usuario/{{usuarioId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "logs",
+                "usuario",
+                "{{usuarioId}}"
+              ]
+            },
+            "description": "Logs de un usuario."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear log",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/logs",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "logs"
+              ]
+            },
+            "description": "Registra un log manual.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"Usuario actualizo perfil\",\n  \"idUsuario\": \"{{usuarioId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar log",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/logs/{{logId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "logs",
+                "{{logId}}"
+              ]
+            },
+            "description": "Elimina un log."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Vistas",
+      "item": [
+        {
+          "name": "Promociones activas (vista)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/vistas/promociones-activas",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "vistas",
+                "promociones-activas"
+              ]
+            },
+            "description": "Vista agregada de promociones activas."
+          },
+          "response": []
+        },
+        {
+          "name": "Rating promedio (vista)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/vistas/rating-promedio",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "vistas",
+                "rating-promedio"
+              ]
+            },
+            "description": "Vista de calificaciones promedio."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Solicitudes de restaurante",
+      "item": [
+        {
+          "name": "Crear solicitud",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/solicitudes-restaurante",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "solicitudes-restaurante"
+              ]
+            },
+            "description": "Crea una solicitud de restaurante.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Restaurante Nuevo\",\n  \"direccion\": \"Calle 1\",\n  \"telefono\": \"555000111\",\n  \"descripcion\": \"Quiero unirme a la plataforma\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener mis solicitudes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/solicitudes-restaurante/mine",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "solicitudes-restaurante",
+                "mine"
+              ]
+            },
+            "description": "Solicitudes del usuario autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar solicitudes (admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/solicitudes-restaurante",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "solicitudes-restaurante"
+              ]
+            },
+            "description": "Lista todas las solicitudes (admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener solicitud por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/solicitudes-restaurante/{{solicitudId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "solicitudes-restaurante",
+                "{{solicitudId}}"
+              ]
+            },
+            "description": "Detalle de una solicitud (admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Aprobar solicitud",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/solicitudes-restaurante/{{solicitudId}}/aprobar",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "solicitudes-restaurante",
+                "{{solicitudId}}",
+                "aprobar"
+              ]
+            },
+            "description": "Aprueba una solicitud (admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Rechazar solicitud",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/solicitudes-restaurante/{{solicitudId}}/rechazar",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "solicitudes-restaurante",
+                "{{solicitudId}}",
+                "rechazar"
+              ]
+            },
+            "description": "Rechaza una solicitud (admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar solicitud (compatibilidad)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/solicitudes-restaurante/{{solicitudId}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "solicitudes-restaurante",
+                "{{solicitudId}}"
+              ]
+            },
+            "description": "Actualiza una solicitud mediante PUT.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"aprobada\",\n  \"comentario\": \"Aprobada manualmente\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "serverUrl",
+      "value": "http://localhost:4000"
+    },
+    {
+      "key": "apiBase",
+      "value": "{{serverUrl}}/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "resetToken",
+      "value": ""
+    },
+    {
+      "key": "usuarioId",
+      "value": "1"
+    },
+    {
+      "key": "restauranteId",
+      "value": "1"
+    },
+    {
+      "key": "categoriaId",
+      "value": "1"
+    },
+    {
+      "key": "promocionId",
+      "value": "1"
+    },
+    {
+      "key": "calificacionId",
+      "value": "1"
+    },
+    {
+      "key": "sesionId",
+      "value": "1"
+    },
+    {
+      "key": "logId",
+      "value": "1"
+    },
+    {
+      "key": "solicitudId",
+      "value": "1"
+    }
+  ]
+}

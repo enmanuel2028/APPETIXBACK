@@ -22,3 +22,31 @@ export async function ensureRestauranteFotoColumn(ds: DataSource) {
     }
 }
 
+export async function ensurePasswordResetTable(ds: DataSource) {
+    const queryRunner = ds.createQueryRunner();
+    await queryRunner.connect();
+    try {
+        const hasTable = await queryRunner.hasTable("PASSWORD_RESETS");
+        if (!hasTable) {
+            await queryRunner.query(`
+                CREATE TABLE \`PASSWORD_RESETS\` (
+                    \`idReset\` INT NOT NULL AUTO_INCREMENT,
+                    \`idUsuario\` INT NOT NULL,
+                    \`token\` VARCHAR(255) NOT NULL,
+                    \`fechaSolicitud\` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    \`fechaExpira\` DATETIME NOT NULL,
+                    \`usado\` TINYINT(1) NOT NULL DEFAULT 0,
+                    PRIMARY KEY (\`idReset\`),
+                    INDEX \`IDX_PASSWORD_RESETS_USER\` (\`idUsuario\`),
+                    CONSTRAINT \`FK_PASSWORD_RESETS_USUARIO\` FOREIGN KEY (\`idUsuario\`) REFERENCES \`USUARIOS\`(\`idUsuario\`) ON DELETE CASCADE
+                );
+            `);
+            console.log("[DB] Tabla PASSWORD_RESETS creada");
+        }
+    } catch (err) {
+        console.error("[DB] Error asegurando tabla PASSWORD_RESETS:", err);
+    } finally {
+        await queryRunner.release();
+    }
+}
+
