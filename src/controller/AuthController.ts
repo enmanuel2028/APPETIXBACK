@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { randomBytes } from "crypto";
-import { ZodError } from "zod";
+import { ZodError, z } from "zod";
 import { AppDataSource } from "../config/data";
 import { Usuario } from "../model/Usuarios";
 import { Sesion } from "../model/Sesion";
@@ -22,10 +22,54 @@ const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 const RESET_TOKEN_TTL_MS = 1000 * 60 * 30;
 
 export class AuthController {
+    private static extractFieldErrors(error: ZodError) {
+        const fieldErrors: Record<string, string[]> = {};
+        const tree = z.treeifyError(error) as {
+            errors?: string[];
+            properties?: Record<string, unknown>;
+            items?: unknown[];
+        };
+
+        const visit = (node: unknown, path: string[]) => {
+            if (!node || typeof node !== "object") {
+                return;
+            }
+
+            const current = node as {
+                errors?: string[];
+                properties?: Record<string, unknown>;
+                items?: unknown[];
+            };
+
+            if (Array.isArray(current.errors) && current.errors.length > 0) {
+                const key = path.length === 0 ? "_errors" : path.join(".");
+                const existing = fieldErrors[key] ?? [];
+                fieldErrors[key] = [...existing, ...current.errors];
+            }
+
+            if (current.properties && typeof current.properties === "object") {
+                for (const [childKey, childNode] of Object.entries(current.properties)) {
+                    visit(childNode, [...path, childKey]);
+                }
+            }
+
+            if (Array.isArray(current.items)) {
+                current.items.forEach((childNode, index) => {
+                    if (childNode !== undefined && childNode !== null) {
+                        visit(childNode, [...path, index.toString()]);
+                    }
+                });
+            }
+        };
+
+        visit(tree, []);
+        return fieldErrors;
+    }
+
     private static sendValidationError(res: Response, error: ZodError) {
         return res.status(400).json({
-            message: "Datos inválidos",
-            errors: error.flatten().fieldErrors,
+            message: "Datos invalidos",
+            errors: AuthController.extractFieldErrors(error),
         });
     }
 
@@ -89,12 +133,12 @@ export class AuthController {
 
             const user = await userRepo.findOne({ where: { email } });
             if (!user || user.estado !== 1) {
-                return res.status(401).json({ message: "Credenciales inválidas" });
+                return res.status(401).json({ message: "Credenciales invalidas" });
             }
 
             const valid = await comparePassword(password, user.password);
             if (!valid) {
-                return res.status(401).json({ message: "Credenciales inválidas" });
+                return res.status(401).json({ message: "Credenciales invalidas" });
             }
 
             const tokens = await AuthController.issueTokens(user);
@@ -174,7 +218,7 @@ export class AuthController {
             const session = await sesionRepo.findOne({ where: { token: refreshToken } });
 
             if (!session) {
-                return res.status(401).json({ message: "Refresh inválido" });
+                return res.status(401).json({ message: "Refresh invalido" });
             }
 
             let payload: any;
@@ -183,7 +227,7 @@ export class AuthController {
             } catch (error_) {
                 await sesionRepo.remove(session);
                 console.error(error_);
-                return res.status(401).json({ message: "Refresh inválido" });
+                return res.status(401).json({ message: "Refresh invalido" });
             }
 
             const userRepo = AppDataSource.getRepository(Usuario);
@@ -218,7 +262,7 @@ export class AuthController {
                 relations: ["usuario"],
             });
 
-            if (!reset || !reset.usuario) {
+            if (!reset?.usuario) {
                 return res.status(400).json({ message: "Token invalido" });
             }
 
@@ -278,5 +322,12 @@ export class AuthController {
         }
     }
 }
+
+
+
+
+
+
+
 
 

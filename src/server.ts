@@ -5,14 +5,21 @@ import { ensurePasswordResetTable, ensureRestauranteFotoColumn } from "./config/
 
 const PORT = process.env.PORT || 4000;
 
-AppDataSource.initialize()
-    .then(() => {
-        console.log("📦 Conectado a MySQL");
+const startServer = async () => {
+    try {
+        await AppDataSource.initialize();
+        console.log("[DB] Conectado a MySQL");
+
+        await ensurePasswordResetTable(AppDataSource);
+        await ensureRestauranteFotoColumn(AppDataSource);
 
         app.listen(PORT, () => {
             console.log(`[HTTP] Servidor corriendo en http://localhost:${PORT}`);
         });
-    })
-    .catch((err: any) => {
-        console.error("❌ Error al conectar con la base de datos:", err);
-    });
+    } catch (err: unknown) {
+        console.error("[DB] Error al conectar con la base de datos:", err);
+        process.exit(1);
+    }
+};
+
+void startServer();
