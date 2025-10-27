@@ -23,16 +23,16 @@ export class SolicitudRestaurante {
     @Column({ length: 150 })
     nombreComercial!: string;
 
-    @Column({ length: 50, nullable: true })
+    @Column({ type: "varchar", length: 50, nullable: true })
     nit?: string | null;
 
-    @Column({ length: 20, nullable: true })
+    @Column({ type: "varchar", length: 20, nullable: true })
     telefono?: string | null;
 
-    @Column({ length: 255, nullable: true })
+    @Column({ type: "varchar", length: 255, nullable: true })
     direccion?: string | null;
 
-    @Column({ length: 100, nullable: true })
+    @Column({ type: "varchar", length: 100, nullable: true })
     ciudad?: string | null;
 
     @Column({ type: "text", nullable: true })

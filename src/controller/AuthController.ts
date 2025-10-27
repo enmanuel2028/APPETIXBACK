@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { randomBytes } from "crypto";
-import { ZodError, z } from "zod";
+import { randomBytes } from "node:crypto";
+import { ZodError } from "zod";
 import { AppDataSource } from "../config/data";
 import { Usuario } from "../model/Usuarios";
 import { Sesion } from "../model/Sesion";
@@ -8,6 +8,8 @@ import { PasswordReset } from "../model/PasswordReset";
 import { hashPassword, comparePassword } from "../utils/password";
 import { signAccess, signRefresh, verifyRefresh } from "../utils/jwt";
 import { buildAuthPayload } from "../view/AuthView";
+import { extractFieldErrors } from "../utils/zodError";
+import { logError, logInfo, logWarn } from "../utils/logger";
 import {
     loginSchema,
     logoutSchema,
@@ -22,54 +24,10 @@ const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 const RESET_TOKEN_TTL_MS = 1000 * 60 * 30;
 
 export class AuthController {
-    private static extractFieldErrors(error: ZodError) {
-        const fieldErrors: Record<string, string[]> = {};
-        const tree = z.treeifyError(error) as {
-            errors?: string[];
-            properties?: Record<string, unknown>;
-            items?: unknown[];
-        };
-
-        const visit = (node: unknown, path: string[]) => {
-            if (!node || typeof node !== "object") {
-                return;
-            }
-
-            const current = node as {
-                errors?: string[];
-                properties?: Record<string, unknown>;
-                items?: unknown[];
-            };
-
-            if (Array.isArray(current.errors) && current.errors.length > 0) {
-                const key = path.length === 0 ? "_errors" : path.join(".");
-                const existing = fieldErrors[key] ?? [];
-                fieldErrors[key] = [...existing, ...current.errors];
-            }
-
-            if (current.properties && typeof current.properties === "object") {
-                for (const [childKey, childNode] of Object.entries(current.properties)) {
-                    visit(childNode, [...path, childKey]);
-                }
-            }
-
-            if (Array.isArray(current.items)) {
-                current.items.forEach((childNode, index) => {
-                    if (childNode !== undefined && childNode !== null) {
-                        visit(childNode, [...path, index.toString()]);
-                    }
-                });
-            }
-        };
-
-        visit(tree, []);
-        return fieldErrors;
-    }
-
     private static sendValidationError(res: Response, error: ZodError) {
         return res.status(400).json({
             message: "Datos invalidos",
-            errors: AuthController.extractFieldErrors(error),
+            errors: extractFieldErrors(error),
         });
     }
 
@@ -89,8 +47,11 @@ export class AuthController {
 
     static async register(req: Request, res: Response) {
         try {
+            const rawEmail = (req.body as { email?: string } | undefined)?.email ?? null;
+            logInfo("AuthController.register attempt", { email: rawEmail });
             const parsed = registerSchema.safeParse(req.body);
             if (!parsed.success) {
+                logWarn("AuthController.register validation failed", { email: rawEmail });
                 return AuthController.sendValidationError(res, parsed.error);
             }
 
@@ -99,6 +60,7 @@ export class AuthController {
 
             const exists = await userRepo.findOne({ where: { email } });
             if (exists) {
+                logWarn("AuthController.register email already registered", { email });
                 return res.status(400).json({ message: "El email ya esta registrado" });
             }
 
@@ -114,17 +76,23 @@ export class AuthController {
             await userRepo.save(nuevo);
             const tokens = await AuthController.issueTokens(nuevo);
 
+            logInfo("AuthController.register success", { email, userId: nuevo.idUsuario });
             return res.status(201).json(buildAuthPayload(nuevo, tokens));
         } catch (err) {
-            console.error(err);
+            logError("AuthController.register unexpected error", err, {
+                email: (req.body as { email?: string } | undefined)?.email ?? null,
+            });
             return res.status(500).json({ message: "Error en el registro" });
         }
     }
 
     static async login(req: Request, res: Response) {
         try {
+            const rawEmail = (req.body as { email?: string } | undefined)?.email ?? null;
+            logInfo("AuthController.login attempt", { email: rawEmail });
             const parsed = loginSchema.safeParse(req.body);
             if (!parsed.success) {
+                logWarn("AuthController.login validation failed", { email: rawEmail });
                 return AuthController.sendValidationError(res, parsed.error);
             }
 
@@ -133,18 +101,47 @@ export class AuthController {
 
             const user = await userRepo.findOne({ where: { email } });
             if (!user || user.estado !== 1) {
+                logWarn("AuthController.login invalid user or inactive", { email });
                 return res.status(401).json({ message: "Credenciales invalidas" });
             }
 
-            const valid = await comparePassword(password, user.password);
+            const storedPassword = user.password ?? "";
+            const isBcryptHash = typeof storedPassword === "string" && storedPassword.startsWith("$2");
+
+            let valid = false;
+            if (isBcryptHash) {
+                valid = await comparePassword(password, storedPassword);
+            } else if (typeof storedPassword === "string" && storedPassword.length > 0) {
+                valid = storedPassword === password;
+                if (valid) {
+                    try {
+                        user.password = await hashPassword(password);
+                        await userRepo.save(user);
+                        logWarn("AuthController.login migrated plain password", {
+                            email,
+                            userId: user.idUsuario,
+                        });
+                    } catch (migrateError) {
+                        logError("AuthController.login failed to migrate password", migrateError, {
+                            email,
+                            userId: user.idUsuario,
+                        });
+                    }
+                }
+            }
+
             if (!valid) {
+                logWarn("AuthController.login invalid password", { email, userId: user.idUsuario });
                 return res.status(401).json({ message: "Credenciales invalidas" });
             }
 
             const tokens = await AuthController.issueTokens(user);
+            logInfo("AuthController.login success", { email, userId: user.idUsuario });
             return res.json(buildAuthPayload(user, tokens));
         } catch (err) {
-            console.error(err);
+            logError("AuthController.login unexpected error", err, {
+                email: (req.body as { email?: string } | undefined)?.email ?? null,
+            });
             return res.status(500).json({ message: "Error en el login" });
         }
     }

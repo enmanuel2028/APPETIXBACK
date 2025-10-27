@@ -5,6 +5,7 @@ import { Restaurante } from "../model/Restaurante";
 import { ServiceError } from "./errors";
 import { SolicitudRestauranteInput } from "../utils/validators/solicitudRestaurante";
 import { RestauranteService } from "./RestauranteService";
+import { logInfo, logWarn } from "../utils/logger";
 
 type ResolverInput = {
     observaciones?: string;
@@ -26,18 +27,22 @@ export class SolicitudRestauranteService {
     }
 
     async createSolicitud(idUsuario: number, input: SolicitudRestauranteInput): Promise<SolicitudRestaurante> {
+        logInfo("SolicitudRestauranteService.createSolicitud", { idUsuario });
         const usuario = await this.usuarioRepo.findOne({ where: { idUsuario } });
         if (!usuario) {
+            logWarn("SolicitudRestauranteService.createSolicitud usuario no encontrado", { idUsuario });
             throw new ServiceError("Usuario no encontrado", 404);
         }
 
         if (usuario.rol === "restaurante") {
+            logWarn("SolicitudRestauranteService.createSolicitud usuario ya es restaurante", { idUsuario });
             throw new ServiceError("El usuario ya es un restaurante", 400);
         }
 
         const pendiente = await this.repo.findOne({ where: { usuario: { idUsuario }, estado: "pendiente" } });
 
         if (pendiente) {
+            logWarn("SolicitudRestauranteService.createSolicitud pendiente existente", { idUsuario, idSolicitud: pendiente.idSolicitud });
             throw new ServiceError("Ya existe una solicitud pendiente por revisar", 400);
         }
 
@@ -55,10 +60,15 @@ export class SolicitudRestauranteService {
         });
 
         const saved = await this.repo.save(solicitud);
+        logInfo("SolicitudRestauranteService.createSolicitud creada", {
+            idUsuario,
+            idSolicitud: saved.idSolicitud,
+        });
         return this.getById(saved.idSolicitud);
     }
 
     async list(estado?: EstadoSolicitud): Promise<SolicitudRestaurante[]> {
+        logInfo("SolicitudRestauranteService.list", { estado: estado ?? "todos" });
         return this.repo.find({
             where: estado ? { estado } : undefined,
             order: { fechaSolicitud: "DESC" },
@@ -66,11 +76,13 @@ export class SolicitudRestauranteService {
     }
 
     async getById(idSolicitud: number): Promise<SolicitudRestaurante> {
+        logInfo("SolicitudRestauranteService.getById", { idSolicitud });
         const solicitud = await this.repo.findOne({
             where: { idSolicitud },
         });
 
         if (!solicitud) {
+            logWarn("SolicitudRestauranteService.getById no encontrada", { idSolicitud });
             throw new ServiceError("Solicitud no encontrada", 404);
         }
 
@@ -78,6 +90,7 @@ export class SolicitudRestauranteService {
     }
 
     async getByUsuario(idUsuario: number): Promise<SolicitudRestaurante | null> {
+        logInfo("SolicitudRestauranteService.getByUsuario", { idUsuario });
         return this.repo.findOne({
             where: {
                 usuario: { idUsuario },
@@ -87,6 +100,7 @@ export class SolicitudRestauranteService {
     }
 
     async approveSolicitud(idSolicitud: number, input: ResolverInput = {}): Promise<SolicitudRestaurante> {
+        logInfo("SolicitudRestauranteService.approveSolicitud", { idSolicitud });
         await AppDataSource.transaction(async (manager) => {
             const repo = manager.getRepository(SolicitudRestaurante);
             const usuarioRepo = manager.getRepository(Usuario);
@@ -95,6 +109,10 @@ export class SolicitudRestauranteService {
             const solicitud = await repo.findOne({ where: { idSolicitud } });
             if (!solicitud) throw new ServiceError("Solicitud no encontrada", 404);
             if (solicitud.estado !== "pendiente") {
+                logWarn("SolicitudRestauranteService.approveSolicitud ya resuelta", {
+                    idSolicitud,
+                    estado: solicitud.estado,
+                });
                 throw new ServiceError("La solicitud ya fue resuelta", 400);
             }
 
@@ -124,18 +142,28 @@ export class SolicitudRestauranteService {
                     ciudad: solicitud.ciudad ?? undefined,
                 });
                 await restauranteRepo.save(restaurante);
+                logInfo("SolicitudRestauranteService.approveSolicitud restaurante creado", {
+                    idSolicitud,
+                    idUsuario: usuario.idUsuario,
+                });
             }
         });
 
+        logInfo("SolicitudRestauranteService.approveSolicitud completada", { idSolicitud });
         return this.getById(idSolicitud);
     }
 
     async rejectSolicitud(idSolicitud: number, input: ResolverInput = {}): Promise<SolicitudRestaurante> {
+        logInfo("SolicitudRestauranteService.rejectSolicitud", { idSolicitud });
         await AppDataSource.transaction(async (manager) => {
             const repo = manager.getRepository(SolicitudRestaurante);
             const solicitud = await repo.findOne({ where: { idSolicitud } });
             if (!solicitud) throw new ServiceError("Solicitud no encontrada", 404);
             if (solicitud.estado !== "pendiente") {
+                logWarn("SolicitudRestauranteService.rejectSolicitud ya resuelta", {
+                    idSolicitud,
+                    estado: solicitud.estado,
+                });
                 throw new ServiceError("La solicitud ya fue resuelta", 400);
             }
 
@@ -145,6 +173,7 @@ export class SolicitudRestauranteService {
             await repo.save(solicitud);
         });
 
+        logInfo("SolicitudRestauranteService.rejectSolicitud completada", { idSolicitud });
         return this.getById(idSolicitud);
     }
 }

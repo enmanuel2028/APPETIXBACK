@@ -2,6 +2,7 @@ import "reflect-metadata"; // Necesario para TypeORM
 import app from "./app";
 import { AppDataSource } from "./config/data";
 import { ensurePasswordResetTable, ensureRestauranteFotoColumn } from "./config/migrations";
+import { ensureDefaultAdmin } from "./config/admin";
 
 const PORT = process.env.PORT || 4000;
 
@@ -12,6 +13,7 @@ const startServer = async () => {
 
         await ensurePasswordResetTable(AppDataSource);
         await ensureRestauranteFotoColumn(AppDataSource);
+        await ensureDefaultAdmin(AppDataSource);
 
         app.listen(PORT, () => {
             console.log(`[HTTP] Servidor corriendo en http://localhost:${PORT}`);

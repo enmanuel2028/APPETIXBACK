@@ -808,6 +808,61 @@
             "description": "Elimina una promocion."
           },
           "response": []
+        },
+        {
+          "name": "Subir foto de promocion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/promociones/{{promocionId}}/foto",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "promociones",
+                "{{promocionId}}",
+                "foto"
+              ]
+            },
+            "description": "Sube o reemplaza la foto de la promoción.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "foto",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver foto de promocion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/uploads/promociones/{{nombreArchivo}}",
+              "host": [
+                "{{apiBase}}"
+              ],
+              "path": [
+                "uploads",
+                "promociones",
+                "{{nombreArchivo}}"
+              ]
+            },
+            "description": "Accede a la imagen de una promoción. El nombre del archivo se obtiene del campo 'imagenUrl' en la respuesta de otros endpoints de promociones."
+          },
+          "response": []
         }
       ]
     },
@@ -1318,7 +1373,7 @@
             "description": "Crea una solicitud de restaurante.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Restaurante Nuevo\",\n  \"direccion\": \"Calle 1\",\n  \"telefono\": \"555000111\",\n  \"descripcion\": \"Quiero unirme a la plataforma\"\n}",
+              "raw": "{\n  \"nombreComercial\": \"Restaurante Nuevo\",\n  \"nit\": \"\",\n  \"telefono\": \"555000111\",\n  \"direccion\": \"Calle 1\",\n  \"ciudad\": \"\",\n  \"descripcion\": \"Quiero unirme a la plataforma\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

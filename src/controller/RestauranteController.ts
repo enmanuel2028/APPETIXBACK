@@ -4,6 +4,7 @@ import { handleControllerError } from "../utils/controllerError";
 import { toRestauranteView } from "../view/RestauranteView";
 import { publicFotoPath } from "../middleware/upload";
 import { createRestauranteSchema, updateRestauranteSchema } from "../utils/validators/restaurante";
+import { extractFieldErrors } from "../utils/zodError";
 
 const restauranteService = RestauranteService.getInstance();
 
@@ -14,7 +15,7 @@ export class RestauranteController {
             if (!parsed.success) {
                 return res.status(400).json({
                     message: "Datos inválidos",
-                    errors: parsed.error.flatten().fieldErrors,
+                    errors: extractFieldErrors(parsed.error),
                 });
             }
             const authUser = (req as any).user as { sub: number; role: "cliente" | "restaurante" | "admin" } | undefined;
@@ -85,7 +86,7 @@ export class RestauranteController {
             if (!parsed.success) {
                 return res.status(400).json({
                     message: "Datos inválidos",
-                    errors: parsed.error.flatten().fieldErrors,
+                    errors: extractFieldErrors(parsed.error),
                 });
             }
             const restaurante = await restauranteService.updateRestaurante(

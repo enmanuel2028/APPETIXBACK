@@ -8,6 +8,8 @@ import {
     actualizarSolicitudSchema,
 } from "../utils/validators/solicitudRestaurante";
 import { toSolicitudRestauranteView } from "../view/SolicitudRestauranteView";
+import { extractFieldErrors } from "../utils/zodError";
+import { logInfo, logWarn } from "../utils/logger";
 
 const solicitudService = SolicitudRestauranteService.getInstance();
 
@@ -15,15 +17,21 @@ export class SolicitudRestauranteController {
     static async create(req: Request, res: Response) {
         try {
             const authUser = (req as any).user;
+            logInfo("SolicitudRestauranteController.create", {
+                authUserId: authUser?.sub ?? null,
+            });
             if (!authUser) {
                 return res.status(401).json({ message: "No autenticado" });
             }
 
             const parsed = solicitudRestauranteSchema.safeParse(req.body);
             if (!parsed.success) {
+                logWarn("SolicitudRestauranteController.create validation failed", {
+                    authUserId: authUser?.sub ?? null,
+                });
                 return res.status(400).json({
                     message: "Datos inválidos",
-                    errors: parsed.error.flatten().fieldErrors,
+                    errors: extractFieldErrors(parsed.error),
                 });
             }
 
@@ -41,6 +49,9 @@ export class SolicitudRestauranteController {
     static async list(req: Request, res: Response) {
         try {
             const parsed = estadoSolicitudSchema.safeParse(req.query);
+            logInfo("SolicitudRestauranteController.list", {
+                filtroEstado: parsed.success ? parsed.data.estado ?? "todos" : "invalid",
+            });
             const solicitudes = await solicitudService.list(parsed.success ? parsed.data.estado : undefined);
 
             return res.json(solicitudes.map(toSolicitudRestauranteView));
@@ -51,6 +62,9 @@ export class SolicitudRestauranteController {
 
     static async getById(req: Request, res: Response) {
         try {
+            logInfo("SolicitudRestauranteController.getById", {
+                solicitudId: req.params.id,
+            });
             const solicitud = await solicitudService.getById(Number(req.params.id));
             return res.json(toSolicitudRestauranteView(solicitud));
         } catch (err) {
@@ -61,6 +75,9 @@ export class SolicitudRestauranteController {
     static async getMine(req: Request, res: Response) {
         try {
             const authUser = (req as any).user;
+            logInfo("SolicitudRestauranteController.getMine", {
+                authUserId: authUser?.sub ?? null,
+            });
             if (!authUser) {
                 return res.status(401).json({ message: "No autenticado" });
             }
@@ -79,10 +96,16 @@ export class SolicitudRestauranteController {
     static async approve(req: Request, res: Response) {
         try {
             const parsed = resolverSolicitudSchema.safeParse(req.body);
+            logInfo("SolicitudRestauranteController.approve", {
+                solicitudId: req.params.id,
+            });
             if (!parsed.success) {
+                logWarn("SolicitudRestauranteController.approve validation failed", {
+                    solicitudId: req.params.id,
+                });
                 return res.status(400).json({
                     message: "Datos inválidos",
-                    errors: parsed.error.flatten().fieldErrors,
+                    errors: extractFieldErrors(parsed.error),
                 });
             }
 
@@ -100,10 +123,16 @@ export class SolicitudRestauranteController {
     static async reject(req: Request, res: Response) {
         try {
             const parsed = resolverSolicitudSchema.safeParse(req.body);
+            logInfo("SolicitudRestauranteController.reject", {
+                solicitudId: req.params.id,
+            });
             if (!parsed.success) {
+                logWarn("SolicitudRestauranteController.reject validation failed", {
+                    solicitudId: req.params.id,
+                });
                 return res.status(400).json({
                     message: "Datos inválidos",
-                    errors: parsed.error.flatten().fieldErrors,
+                    errors: extractFieldErrors(parsed.error),
                 });
             }
 
@@ -123,10 +152,16 @@ export class SolicitudRestauranteController {
     static async update(req: Request, res: Response) {
         try {
             const parsed = actualizarSolicitudSchema.safeParse(req.body);
+            logInfo("SolicitudRestauranteController.update", {
+                solicitudId: req.params.id,
+            });
             if (!parsed.success) {
+                logWarn("SolicitudRestauranteController.update validation failed", {
+                    solicitudId: req.params.id,
+                });
                 return res.status(400).json({
                     message: "Datos inválidos",
-                    errors: parsed.error.flatten().fieldErrors,
+                    errors: extractFieldErrors(parsed.error),
                 });
             }
 

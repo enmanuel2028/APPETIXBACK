@@ -3,6 +3,8 @@ import { PromocionService } from "../service/PromocionService";
 import { handleControllerError } from "../utils/controllerError";
 import { toPromocionDetailView, toPromocionView } from "../view/PromocionesView";
 import { createPromocionSchema, updatePromocionSchema } from "../utils/validators/promocion";
+import { extractFieldErrors } from "../utils/zodError";
+import { publicPromocionFotoPath } from "../middleware/uploadPromocion";
 
 const promocionService = PromocionService.getInstance();
 
@@ -13,7 +15,7 @@ export class PromocionController {
             if (!parsed.success) {
                 return res.status(400).json({
                     message: "Datos inválidos",
-                    errors: parsed.error.flatten().fieldErrors,
+                    errors: extractFieldErrors(parsed.error),
                 });
             }
 
@@ -81,7 +83,7 @@ export class PromocionController {
             if (!parsed.success) {
                 return res.status(400).json({
                     message: "Datos inválidos",
-                    errors: parsed.error.flatten().fieldErrors,
+                    errors: extractFieldErrors(parsed.error),
                 });
             }
 
@@ -98,6 +100,22 @@ export class PromocionController {
             return res.json({ success: true });
         } catch (err) {
             return handleControllerError(res, err, "Error al eliminar promocion");
+        }
+    }
+
+    static async uploadFoto(req: Request, res: Response) {
+        try {
+            const id = Number(req.params.id);
+            // req.file is set by multer middleware
+            const file = (req as any).file as Express.Multer.File | undefined;
+            if (!file) {
+                return res.status(400).json({ message: "Archivo 'foto' requerido" });
+            }
+            const imagenUrl = publicPromocionFotoPath(file.filename);
+            const promocion = await promocionService.updatePromocion(id, { imagenUrl });
+            return res.status(200).json(toPromocionDetailView(promocion));
+        } catch (err) {
+            return handleControllerError(res, err, "Error al subir foto de promoción");
         }
     }
 }

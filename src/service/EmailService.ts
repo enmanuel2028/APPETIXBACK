@@ -20,15 +20,16 @@ const isMailConfigured = () => {
     );
 };
 
-let cachedTransporter: Transporter | null | undefined;
+let cachedTransporter: Transporter | null = null;
+let transporterInitialized = false;
 
 async function getTransporter(): Promise<Transporter | null> {
-    if (cachedTransporter !== undefined) {
+    if (transporterInitialized) {
         return cachedTransporter;
     }
 
     if (!isMailConfigured()) {
-        cachedTransporter = null;
+        transporterInitialized = true;
         console.warn(
             "[EmailService] Configuracion de correo incompleta. Se omitira el envio y se registrara el enlace en consola.",
         );
@@ -36,7 +37,7 @@ async function getTransporter(): Promise<Transporter | null> {
     }
 
     if (!nodemailer) {
-        cachedTransporter = null;
+        transporterInitialized = true;
         console.error(
             "[EmailService] nodemailer no esta disponible. Ejecute `npm install nodemailer` para habilitar el envio real.",
         );
@@ -54,6 +55,7 @@ async function getTransporter(): Promise<Transporter | null> {
     });
 
     cachedTransporter = transport;
+    transporterInitialized = true;
     return cachedTransporter;
 }
 
@@ -95,4 +97,3 @@ export class EmailService {
         });
     }
 }
-
