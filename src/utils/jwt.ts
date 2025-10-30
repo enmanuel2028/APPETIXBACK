@@ -1,18 +1,22 @@
+import { randomBytes } from "crypto";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
+import { logWarn } from "./logger";
 
 dotenv.config();
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+const ensureSecret = (value: string | undefined, envName: string) => {
+    if (value && value.trim().length > 0) {
+        return value;
+    }
 
-if (!ACCESS_SECRET) {
-    throw new Error("JWT_ACCESS_SECRET environment variable is required");
-}
+    const fallback = randomBytes(32).toString("hex");
+    logWarn(`Missing ${envName}. Generated a temporary secret; configure ${envName} to persist tokens across restarts.`);
+    return fallback;
+};
 
-if (!REFRESH_SECRET) {
-    throw new Error("JWT_REFRESH_SECRET environment variable is required");
-}
+const ACCESS_SECRET = ensureSecret(process.env.JWT_ACCESS_SECRET, "JWT_ACCESS_SECRET");
+const REFRESH_SECRET = ensureSecret(process.env.JWT_REFRESH_SECRET, "JWT_REFRESH_SECRET");
 
 export const signAccess = (payload: any) =>
     jwt.sign(payload, ACCESS_SECRET, { expiresIn: "15m" });
