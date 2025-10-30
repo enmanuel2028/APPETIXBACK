@@ -1,0 +1,25 @@
+# Versión del esquema de docker-compose.
+version: "3.9"
+
+services:
+  appetix_back:
+    # Construimos la imagen usando el Dockerfile preparado.
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: appetix_back
+
+    # Cargamos automáticamente todas las variables definidas en .env.
+    env_file:
+      - .env
+
+    # Fuerza NODE_ENV=production dentro del contenedor (además del resto del .env).
+    environment:
+      NODE_ENV: "production"
+
+    # Hacemos accesible el backend en el puerto 4000 del host.
+    ports:
+      - "4000:4000"
+
+    # Reinicia automáticamente salvo que se detenga manualmente.
+    restart: unless-stopped

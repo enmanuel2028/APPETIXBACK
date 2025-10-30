@@ -1,4 +1,4 @@
-import { randomBytes } from "crypto";
+import { randomBytes } from "node:crypto";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import { logWarn } from "./logger";
